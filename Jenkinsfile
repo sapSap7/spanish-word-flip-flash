@@ -43,6 +43,8 @@ pipeline {
                     }
                     steps {
                         // Integration tests with Playwright
+                        sh 'npm ci'
+                        sh 'npx playwright install --with-deps'
                         sh 'npx playwright test'
                     }
                 }
@@ -71,6 +73,8 @@ pipeline {
                 E2E_BASE_URL = 'http://spanish-cards.netlify.app/'
             }
             steps {
+                sh 'npm ci'
+                sh 'npx playwright install --with-deps'
                 sh 'npx playwright test'
             }
         }
