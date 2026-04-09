@@ -15,6 +15,7 @@ pipeline {
             steps {
                 sh 'npm ci'
                 sh 'npm run build'
+                stash name: 'workspace', includes: '**/*'
             }
         }
 
@@ -24,28 +25,26 @@ pipeline {
                     agent {
                         docker {
                             image 'node:22-alpine'
-                            reuseNode true
                         }
                     }
                     steps {
-                        // Unit tests with Vitest
-                        sh 'npx vitest run --reporter=verbose'
+                        unstash 'workspace'
                         sh 'npm ci'
-                        sh 'npm run build'
+                        sh 'npm run test:unit'
                     }
                 }
+
                 stage('integration tests') {
                     agent {
                         docker {
                             image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
-                            reuseNode true
                         }
                     }
                     steps {
-                        // Integration tests with Playwright
+                        unstash 'workspace'
                         sh 'npm ci'
                         sh 'npx playwright install --with-deps'
-                        sh 'npx playwright test'
+                        sh 'npm run test:e2e'
                     }
                 }
             }
@@ -58,26 +57,31 @@ pipeline {
                 }
             }
             steps {
-                // Mock deployment which does nothing
                 echo 'Mock deployment was successful!'
             }
         }
-        stage('e2e'){
+
+        stage('e2e') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
-                    reuseNode true
                 }
             }
             environment {
                 E2E_BASE_URL = 'http://spanish-cards.netlify.app/'
             }
             steps {
+                unstash 'workspace'
                 sh 'npm ci'
                 sh 'npx playwright install --with-deps'
-                sh 'npx playwright test'
+                sh 'npm run test:e2e'
             }
         }
+    }
 
+    post {
+        always {
+            archiveArtifacts artifacts: 'playwright-report/**', allowEmptyArchive: true
+        }
     }
 }
