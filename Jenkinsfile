@@ -43,7 +43,6 @@ pipeline {
                     }
                     steps {
                         // Integration tests with Playwright
-                        sh 'npx playwright install --with-deps'
                         sh 'npx playwright test'
                     }
                 }
