@@ -28,9 +28,8 @@ pipeline {
                         }
                     }
                     steps {
-                        unstash 'workspace'
                         sh 'npm ci'
-                        sh 'npm run test:unit'
+                        sh 'npx vitest run --reporter=verbose'
                     }
                 }
 
@@ -38,13 +37,13 @@ pipeline {
                     agent {
                         docker {
                             image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
+                            reuseNode true
                         }
                     }
                     steps {
                         unstash 'workspace'
                         sh 'npm ci'
-                        sh 'npx playwright install --with-deps'
-                        sh 'npm run test:e2e'
+                        sh 'npx playwright test --reporter=html'
                     }
                 }
             }
