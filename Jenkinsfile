@@ -70,6 +70,10 @@ pipeline {
                 E2E_BASE_URL = 'http://localhost:8081/'
             }
             steps {
+                sh 'npm ci'
+                sh 'npm run build'
+                sh 'npm run preview -- --host 0.0.0.0 --port 8081 &'
+                sh 'sleep 5'
                 sh 'npx playwright test'
             }
         }
