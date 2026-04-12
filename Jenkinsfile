@@ -67,7 +67,7 @@ pipeline {
                 }
             }
             environment {
-                E2E_BASE_URL = 'https://localhost:8081/'
+                E2E_BASE_URL = 'http://localhost:8081/'
             }
             steps {
                 sh 'npx playwright test'
